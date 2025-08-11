@@ -28,6 +28,7 @@ graph TD
     A[User Query] --> B{Guardrail Agent};
     B -- ✅ Valid Query --> C{Triage Agent};
     B -- ❌ Invalid Query --> D[End];
+
     C -- Route to HR --> E[HR Specialist Agent];
     C -- Route to Tech --> F[Technical Specialist Agent];
 
@@ -41,24 +42,26 @@ graph TD
     F --> L{Choose Tool};
     L -- Internal Query --> M[Tech RAG Tool];
     L -- General Query --> N[Wikipedia Tool];
+
     M --> O((Tech Knowledge Base));
     O --> P[Advanced RAG Pipeline];
     P --> Q[Re-ranked Context];
     Q --> M;
+
     M --> F;
     N --> F;
     F --> K;
 
     subgraph Advanced RAG Pipeline
         direction LR
-        1[Query Expansion] --> 2[Parent-Child Retrieval] --> 3[Re-ranking]
+        sub_A[Query Expansion] --> sub_B[Parent-Child Retrieval] --> sub_C[Re-ranking]
     end
 
-   style B fill:#f9f,stroke:#333,stroke-width:2px
-   style C fill:#f9f,stroke:#333,stroke-width:2px
-   style E fill:#ccf,stroke:#333,stroke-width:2px
-   style F fill:#9cf,stroke:#333,stroke-width:2px
-
+    %% Style Definitions
+    style B fill:#f9f,stroke:#333,stroke-width:2px,color:black
+    style C fill:#f9f,stroke:#333,stroke-width:2px,color:black
+    style E fill:#ccf,stroke:#333,stroke-width:2px,color:black
+    style F fill:#9cf,stroke:#333,stroke-width:2px,color:black
 ```
 
 -----
