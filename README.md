@@ -4,6 +4,8 @@
 
 A sophisticated, multi-agent system designed to provide specialized answers from multiple knowledge bases using an advanced Retrieval-Augmented Generation (RAG) pipeline. This project demonstrates a robust architecture for building intelligent, scalable, and context-aware AI assistants.
 
+Github link: https://github.com/Rupesh4604/Intelligent-Multi-Agent-Knowledge-Assistant
+
 ## ✨ Key Features
 
   * **Multi-Agent Architecture**: The system uses a modular, agentic design with:
