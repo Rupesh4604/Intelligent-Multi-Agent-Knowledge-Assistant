@@ -2,7 +2,7 @@
 # ------------------------------------
 # !pip install langchain langchain-google-genai wikipedia pydantic
 # !pip install langchain-community faiss-cpu
-# !pip install flashrank
+# !pip install flashrank python-dotenv
 
 import os
 import asyncio
@@ -68,18 +68,37 @@ with open("tech_docs.txt", "w") as f:
 # ------------------------------------
 
 
-# 2. Configure API Key
-# --------------------
-llm = None
+# 2. Configure API Key and models
+# --------------------------------
+# The key is read from the environment (a local .env file or your shell), never from the code.
+# On Google Colab it falls back to the GOOGLE_API_KEY secret. See .env.example.
 try:
-    from google.colab import userdata
-    os.environ['GOOGLE_API_KEY'] = userdata.get('GOOGLE_API_KEY')
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv is optional; plain environment variables work too
+
+if not os.environ.get("GOOGLE_API_KEY"):
+    try:
+        from google.colab import userdata
+        os.environ["GOOGLE_API_KEY"] = userdata.get("GOOGLE_API_KEY")
+    except Exception:
+        pass
+
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+EMBEDDING_MODEL = os.environ.get("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
+
+llm = None
+if not os.environ.get("GOOGLE_API_KEY"):
+    print("❌ GOOGLE_API_KEY is not set. Copy .env.example to .env and add your key.")
+    raise SystemExit(1)
+try:
+    llm = ChatGoogleGenerativeAI(model=GEMINI_MODEL, temperature=0)
     llm.invoke("Test query")
-    print("✅ Gemini API Key configured successfully.")
+    print(f"✅ Gemini configured ({GEMINI_MODEL}).")
 except Exception as e:
     print(f"❌ Error configuring Gemini API: {e}")
-    exit()
+    raise SystemExit(1)
 
 
 # 3. Setup RAG Pipelines
@@ -101,7 +120,7 @@ def create_rag_retriever(file_path: str) -> FAISS.as_retriever:
             child_documents.append(
                 Document(page_content=child_doc_text, metadata={"parent_content": parent_doc.page_content})
             )
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
     vectorstore = FAISS.from_documents(child_documents, embeddings)
     # Retrieve more documents initially (k=5) to feed into the re-ranker
     return vectorstore.as_retriever(search_kwargs={"k": 5})
