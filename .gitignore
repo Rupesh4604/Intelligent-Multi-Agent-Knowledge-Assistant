@@ -1,0 +1,6 @@
+.env
+__pycache__/
+.venv/
+venv/
+hr_policy.txt
+tech_docs.txt
